@@ -1,6 +1,6 @@
 /*
- * P3 - Bitset Algebra
- * Answer key: load two binary strings and apply bitwise set operations.
+ * P3 - Set Duel
+ * Answer key: load two binary strings and compare them as bit sets.
  *
  * Compile:
  *   gcc -std=c11 -O2 -Wall -Wextra -o P3 P3.c
@@ -11,6 +11,9 @@
  *   parse_bits  - convert a binary string to a bit vector
  *   print_bits  - print exactly L bits, most significant first
  *   count_ones  - count the set bits
+ *   is_subset   - true when every bit of A is also in B
+ *   is_disjoint - true when A and B share no bits
+ *   same_set    - true when A and B are identical
  */
 
 #include <stdint.h>
@@ -45,15 +48,31 @@ static int count_ones(uint64_t value) {
     return count;
 }
 
+static int is_subset(uint64_t a, uint64_t b) {
+    return (a & ~b) == 0;
+}
+
+static int is_disjoint(uint64_t a, uint64_t b) {
+    return (a & b) == 0;
+}
+
+static int same_set(uint64_t a, uint64_t b) {
+    return a == b;
+}
+
 int main(void) {
+    int length;
     char a[80];
     char b[80];
 
-    if (scanf("%79s %79s", a, b) != 2) {
+    if (scanf("%d %79s %79s", &length, a, b) != 3) {
         return 0;
     }
 
-    int length = (int)strlen(a);
+    if (length < 1 || length > 64) {
+        return 0;
+    }
+
     uint64_t first = parse_bits(a, length);
     uint64_t second = parse_bits(b, length);
 
@@ -66,8 +85,16 @@ int main(void) {
     printf("XOR: ");
     print_bits(first ^ second, length);
 
-    printf("A ones: %d\n", count_ones(first));
-    printf("B ones: %d\n", count_ones(second));
+    printf("NOT: ");
+    print_bits(~first, length);
+
+    printf("A: %d\n", count_ones(first));
+    printf("B: %d\n", count_ones(second));
+    printf("INTERSECTION: %d\n", count_ones(first & second));
+    printf("UNION: %d\n", count_ones(first | second));
+    printf("SUBSET: %s\n", is_subset(first, second) ? "yes" : "no");
+    printf("DISJOINT: %s\n", is_disjoint(first, second) ? "yes" : "no");
+    printf("SAME: %s\n", same_set(first, second) ? "yes" : "no");
 
     return 0;
 }

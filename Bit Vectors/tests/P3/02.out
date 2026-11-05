@@ -1,5 +1,11 @@
 AND: 0
 OR: 1
 XOR: 1
-A ones: 1
-B ones: 0
+NOT: 0
+A: 1
+B: 0
+INTERSECTION: 0
+UNION: 1
+SUBSET: no
+DISJOINT: yes
+SAME: no

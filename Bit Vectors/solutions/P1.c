@@ -1,6 +1,6 @@
 /*
- * P1 - Bit Vector Playground
- * Answer key: a 64-bit vector with SET / CLEAR / FLIP / GET / COUNT / PRINT.
+ * P1 - Light Panel
+ * Answer key: a 32-bit panel with range SET / CLEAR / FLIP operations.
  *
  * Compile:
  *   gcc -std=c11 -O2 -Wall -Wextra -o P1 P1.c
@@ -8,48 +8,57 @@
  *   Get-Content ..\tests\P1\01.in | .\P1.exe
  *
  * Solution functions:
- *   set_bit    - turn one bit on
- *   clear_bit  - turn one bit off
- *   flip_bit   - toggle one bit
+ *   range_mask - build a mask covering bits a..b inclusive
+ *   set_range  - turn every bit in a..b on
+ *   clear_range- turn every bit in a..b off
+ *   flip_range - toggle every bit in a..b
  *   get_bit    - read one bit
  *   count_bits - count the set bits
- *   print_bits - print all 64 bits, most significant first
+ *   print_bits - print all 32 bits, most significant first
  */
 
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 
-static void set_bit(uint64_t *bits, int position) {
-    *bits |= UINT64_C(1) << position;
+static uint32_t range_mask(int a, int b) {
+    int width = b - a + 1;
+    if (width >= 32) {
+        return UINT32_MAX;
+    }
+    return ((UINT32_C(1) << width) - 1) << a;
 }
 
-static void clear_bit(uint64_t *bits, int position) {
-    *bits &= ~(UINT64_C(1) << position);
+static void set_range(uint32_t *bits, int a, int b) {
+    *bits |= range_mask(a, b);
 }
 
-static void flip_bit(uint64_t *bits, int position) {
-    *bits ^= UINT64_C(1) << position;
+static void clear_range(uint32_t *bits, int a, int b) {
+    *bits &= ~range_mask(a, b);
 }
 
-static int get_bit(uint64_t bits, int position) {
-    return (int)((bits >> position) & UINT64_C(1));
+static void flip_range(uint32_t *bits, int a, int b) {
+    *bits ^= range_mask(a, b);
 }
 
-static int count_bits(uint64_t bits) {
+static int get_bit(uint32_t bits, int position) {
+    return (int)((bits >> position) & UINT32_C(1));
+}
+
+static int count_bits(uint32_t bits) {
     int count = 0;
 
     while (bits != 0) {
-        bits &= bits - UINT64_C(1);
+        bits &= bits - UINT32_C(1);
         count++;
     }
 
     return count;
 }
 
-static void print_bits(uint64_t bits) {
-    for (int position = 63; position >= 0; position--) {
-        putchar(((bits >> position) & UINT64_C(1)) ? '1' : '0');
+static void print_bits(uint32_t bits) {
+    for (int position = 31; position >= 0; position--) {
+        putchar(((bits >> position) & UINT32_C(1)) ? '1' : '0');
     }
     putchar('\n');
 }
@@ -60,7 +69,7 @@ int main(void) {
         return 0;
     }
 
-    uint64_t bits = 0;
+    uint32_t bits = 0;
     char command[16];
 
     for (int i = 0; i < q; i++) {
@@ -69,17 +78,17 @@ int main(void) {
         }
 
         if (strcmp(command, "SET") == 0) {
-            int position;
-            scanf("%d", &position);
-            set_bit(&bits, position);
+            int a, b;
+            scanf("%d %d", &a, &b);
+            set_range(&bits, a, b);
         } else if (strcmp(command, "CLEAR") == 0) {
-            int position;
-            scanf("%d", &position);
-            clear_bit(&bits, position);
+            int a, b;
+            scanf("%d %d", &a, &b);
+            clear_range(&bits, a, b);
         } else if (strcmp(command, "FLIP") == 0) {
-            int position;
-            scanf("%d", &position);
-            flip_bit(&bits, position);
+            int a, b;
+            scanf("%d %d", &a, &b);
+            flip_range(&bits, a, b);
         } else if (strcmp(command, "GET") == 0) {
             int position;
             scanf("%d", &position);

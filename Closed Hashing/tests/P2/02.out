@@ -1,8 +1,6 @@
-probes: 10
-0: 0
-1: 7
-2: 21
-3: (empty)
-4: 14
-5: (empty)
-6: (empty)
+5: 0
+5: DUP at 0
+6: 0 -> FAIL
+table:
+0: 5
+probes: 5

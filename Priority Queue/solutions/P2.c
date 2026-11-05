@@ -1,6 +1,6 @@
 /*
- * P2 - ER Triage
- * Answer key: a max-heap of patients with a severity/arrival comparator.
+ * P2 - Air Traffic
+ * Answer key: a max-heap with a three-key flight comparator.
  *
  * Compile:
  *   gcc -std=c11 -O2 -Wall -Wextra -o P2 P2.c
@@ -8,38 +8,42 @@
  *   Get-Content ..\tests\P2\01.in | .\P2.exe
  *
  * Solution functions:
- *   higher_priority - true when a should be treated before b
- *   push            - add a patient and bubble up
- *   pop             - remove the highest-priority patient and sift down
+ *   higher_priority - true when a should land before b
+ *   push            - add a flight and bubble up
+ *   pop             - remove the highest-priority flight and sift down
+ *   peek            - read the highest-priority flight
  */
 
 #include <stdio.h>
 #include <string.h>
 
-#define MAX_PATIENTS 1005
+#define MAX_FLIGHTS 1005
 
 typedef struct {
-    char name[32];
-    int severity;
-    int arrival;
-} Patient;
+    char flight[16];
+    int emergency;
+    int time;
+} Flight;
 
-static int higher_priority(const Patient *a, const Patient *b) {
-    if (a->severity != b->severity) {
-        return a->severity > b->severity;
+static int higher_priority(const Flight *a, const Flight *b) {
+    if (a->emergency != b->emergency) {
+        return a->emergency > b->emergency;
     }
-    return a->arrival < b->arrival;
+    if (a->time != b->time) {
+        return a->time < b->time;
+    }
+    return strcmp(a->flight, b->flight) < 0;
 }
 
-static void swap(Patient *a, Patient *b) {
-    Patient tmp = *a;
+static void swap(Flight *a, Flight *b) {
+    Flight tmp = *a;
     *a = *b;
     *b = tmp;
 }
 
-static void push(Patient *heap, int *size, Patient patient) {
+static void push(Flight *heap, int *size, Flight flight) {
     int index = (*size)++;
-    heap[index] = patient;
+    heap[index] = flight;
 
     while (index > 0) {
         int parent = (index - 1) / 2;
@@ -51,8 +55,8 @@ static void push(Patient *heap, int *size, Patient patient) {
     }
 }
 
-static Patient pop(Patient *heap, int *size) {
-    Patient top = heap[0];
+static Flight pop(Flight *heap, int *size) {
+    Flight top = heap[0];
     heap[0] = heap[--(*size)];
 
     int index = 0;
@@ -78,10 +82,14 @@ static Patient pop(Patient *heap, int *size) {
     return top;
 }
 
+static const Flight *peek(const Flight *heap, int size) {
+    (void)size;
+    return &heap[0];
+}
+
 int main(void) {
-    Patient heap[MAX_PATIENTS];
+    Flight heap[MAX_FLIGHTS];
     int size = 0;
-    int next_arrival = 0;
 
     int q;
     if (scanf("%d", &q) != 1) {
@@ -95,23 +103,23 @@ int main(void) {
             break;
         }
 
-        if (strcmp(command, "ARRIVE") == 0) {
-            Patient patient;
-            scanf("%31s %d", patient.name, &patient.severity);
-            patient.arrival = next_arrival++;
-            push(heap, &size, patient);
-        } else if (strcmp(command, "TREAT") == 0) {
+        if (strcmp(command, "ADD") == 0) {
+            Flight flight;
+            scanf("%15s %d %d", flight.flight, &flight.emergency, &flight.time);
+            push(heap, &size, flight);
+        } else if (strcmp(command, "LAND") == 0) {
             if (size == 0) {
-                printf("NO PATIENTS\n");
+                printf("NONE\n");
             } else {
-                Patient patient = pop(heap, &size);
-                printf("TREATING %s %d\n", patient.name, patient.severity);
+                Flight flight = pop(heap, &size);
+                printf("LANDING %s %d %d\n", flight.flight, flight.emergency, flight.time);
             }
         } else if (strcmp(command, "NEXT") == 0) {
             if (size == 0) {
-                printf("NO PATIENTS\n");
+                printf("NONE\n");
             } else {
-                printf("%s %d\n", heap[0].name, heap[0].severity);
+                const Flight *flight = peek(heap, size);
+                printf("%s %d %d\n", flight->flight, flight->emergency, flight->time);
             }
         } else if (strcmp(command, "COUNT") == 0) {
             printf("%d\n", size);

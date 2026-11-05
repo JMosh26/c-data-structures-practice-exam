@@ -1,6 +1,6 @@
 /*
- * P3 - Merge the Streams
- * Answer key: merge K sorted lists with a min-heap of list heads.
+ * P3 - Stream Merger
+ * Answer key: merge K non-increasing streams with a max-heap.
  *
  * Compile:
  *   gcc -std=c11 -O2 -Wall -Wextra -o P3 P3.c
@@ -8,9 +8,9 @@
  *   Get-Content ..\tests\P3\01.in | .\P3.exe
  *
  * Solution functions:
- *   comes_before - true when a.value is smaller than b.value
- *   push         - add an Item to the min-heap and bubble it up
- *   pop          - remove the smallest Item and sift the last Item down
+ *   comes_before - true when a should leave the heap before b
+ *   push         - add an Item and bubble it up
+ *   pop          - remove the best Item and sift the last Item down
  */
 
 #include <stdio.h>
@@ -28,7 +28,10 @@ typedef struct {
 } List;
 
 static int comes_before(Item a, Item b) {
-    return a.value < b.value;
+    if (a.value != b.value) {
+        return a.value > b.value;
+    }
+    return a.list < b.list;
 }
 
 static void swap(Item *a, Item *b) {
@@ -127,6 +130,16 @@ int main(void) {
         }
     }
 
+    if (heap_size == 0) {
+        printf("EMPTY\n");
+        free(heap);
+        for (int i = 0; i < k; i++) {
+            free(lists[i].data);
+        }
+        free(lists);
+        return 0;
+    }
+
     int first = 1;
 
     while (heap_size > 0) {
@@ -146,10 +159,10 @@ int main(void) {
     }
     putchar('\n');
 
+    free(heap);
     for (int i = 0; i < k; i++) {
         free(lists[i].data);
     }
     free(lists);
-    free(heap);
     return 0;
 }

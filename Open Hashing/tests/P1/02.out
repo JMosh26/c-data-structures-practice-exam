@@ -1,3 +1,4 @@
 0: (empty)
-1: (empty)
-2: (empty)
+empty: 1
+chains: 0
+longest: 0

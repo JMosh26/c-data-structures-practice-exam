@@ -1,5 +1,5 @@
 /*
- * P2 - ER Triage
+ * P2 - Air Traffic
  * Read the full statement in ..\problems\P2.md.
  *
  * Compile:
@@ -8,45 +8,61 @@
  *   Get-Content ..\tests\P2\01.in | .\P2.exe
  *
  * Starter functions:
- *   push - add a patient and bubble up
- *   pop  - remove the highest-priority patient and sift down
- *
- * Suggested helper (write it yourself):
- *   higher_priority(a, b) - true when a should be treated before b.
- *   Compare severity first, then the smaller arrival number.
+ *   higher_priority - true when a should land before b
+ *   push            - add a flight and bubble up
+ *   pop             - remove the highest-priority flight and sift down
+ *   peek            - read the highest-priority flight
  */
 
 #include <stdio.h>
 #include <string.h>
 
-#define MAX_PATIENTS 1005
+#define MAX_FLIGHTS 1005
 
 typedef struct {
-    char name[32];
-    int severity;
-    int arrival;
-} Patient;
+    char flight[16];
+    int emergency;
+    int time;
+} Flight;
 
-static void push(Patient *heap, int *size, Patient patient) {
-    /* TODO: append at heap[*size], increment *size, then bubble up */
-    (void)heap;
-    (void)size;
-    (void)patient;
+static int higher_priority(const Flight *a, const Flight *b) {
+    /* TODO: higher emergency first; then earlier time; then smaller name */
+    (void)a;
+    (void)b;
+    return 0;
 }
 
-static Patient pop(Patient *heap, int *size) {
-    /* TODO: save the root, move the last patient to the root, decrement *size,
-       then sift down using severity and arrival order */
+static void swap(Flight *a, Flight *b) {
+    /* TODO: exchange *a and *b */
+    (void)a;
+    (void)b;
+}
+
+static void push(Flight *heap, int *size, Flight flight) {
+    /* TODO: append the flight and bubble it up */
     (void)heap;
     (void)size;
-    Patient empty = {"", 0, 0};
+    (void)flight;
+}
+
+static Flight pop(Flight *heap, int *size) {
+    /* TODO: save the root, move the last flight to the root, sift down,
+       and return the saved flight */
+    (void)heap;
+    (void)size;
+    Flight empty = {"", 0, 0};
     return empty;
 }
 
+static const Flight *peek(const Flight *heap, int size) {
+    /* TODO: return the root */
+    (void)size;
+    return &heap[0];
+}
+
 int main(void) {
-    Patient heap[MAX_PATIENTS];
+    Flight heap[MAX_FLIGHTS];
     int size = 0;
-    int next_arrival = 0;
 
     int q;
     if (scanf("%d", &q) != 1) {
@@ -60,23 +76,23 @@ int main(void) {
             break;
         }
 
-        if (strcmp(command, "ARRIVE") == 0) {
-            Patient patient;
-            scanf("%31s %d", patient.name, &patient.severity);
-            patient.arrival = next_arrival++;
-            push(heap, &size, patient);
-        } else if (strcmp(command, "TREAT") == 0) {
+        if (strcmp(command, "ADD") == 0) {
+            Flight flight;
+            scanf("%15s %d %d", flight.flight, &flight.emergency, &flight.time);
+            push(heap, &size, flight);
+        } else if (strcmp(command, "LAND") == 0) {
             if (size == 0) {
-                printf("NO PATIENTS\n");
+                printf("NONE\n");
             } else {
-                Patient patient = pop(heap, &size);
-                printf("TREATING %s %d\n", patient.name, patient.severity);
+                Flight flight = pop(heap, &size);
+                printf("LANDING %s %d %d\n", flight.flight, flight.emergency, flight.time);
             }
         } else if (strcmp(command, "NEXT") == 0) {
             if (size == 0) {
-                printf("NO PATIENTS\n");
+                printf("NONE\n");
             } else {
-                printf("%s %d\n", heap[0].name, heap[0].severity);
+                const Flight *flight = peek(heap, size);
+                printf("%s %d %d\n", flight->flight, flight->emergency, flight->time);
             }
         } else if (strcmp(command, "COUNT") == 0) {
             printf("%d\n", size);

@@ -1,5 +1,5 @@
 /*
- * P2 - Sieve of Bits
+ * P2 - Prime Stamp
  * Read the full statement in ..\problems\P2.md.
  *
  * Compile:
@@ -18,20 +18,20 @@
 #include <stdlib.h>
 
 static uint64_t *create_bitset(int n) {
-    size_t words = (size_t)n / 64 + 1;
-    return (uint64_t *)calloc(words, sizeof(uint64_t));
+    /* TODO: allocate (n / 64 + 1) uint64_t words with calloc */
+    (void)n;
+    return NULL;
 }
 
 static int is_composite(const uint64_t *bits, int value) {
-    /* TODO: return (bits[value >> 6] >> (value & 63)) & 1ULL */
+    /* TODO: read bit `value` from the bitset */
     (void)bits;
     (void)value;
     return 0;
 }
 
 static void sieve(uint64_t *bits, int n) {
-    /* TODO: for every prime p, set the bits of p*p, p*p + p, ... up to n.
-       You may add your own mark_composite() helper. */
+    /* TODO: mark multiples of every prime starting at prime * prime */
     (void)bits;
     (void)n;
 }
@@ -39,6 +39,11 @@ static void sieve(uint64_t *bits, int n) {
 int main(void) {
     int n;
     if (scanf("%d", &n) != 1 || n < 2) {
+        printf("primes: 0\n");
+        printf("sum: 0\n");
+        printf("largest: 0\n");
+        printf("gap: 0\n");
+        printf("pair: none\n");
         return 0;
     }
 
@@ -52,16 +57,42 @@ int main(void) {
     int count = 0;
     int largest = 0;
     long long sum = 0;
+    int previous = -1;
+    int best_gap = 0;
+    int gap_left = 0;
+    int gap_right = 0;
 
     for (int value = 2; value <= n; value++) {
-        if (!is_composite(composite, value)) {
-            count++;
-            sum += value;
-            largest = value;
+        if (is_composite(composite, value)) {
+            continue;
         }
+
+        count++;
+        sum += value;
+        largest = value;
+
+        if (previous >= 0) {
+            int gap = value - previous;
+            if (gap > best_gap) {
+                best_gap = gap;
+                gap_left = previous;
+                gap_right = value;
+            }
+        }
+
+        previous = value;
     }
 
-    printf("%d\n%lld\n%d\n", count, sum, largest);
+    printf("primes: %d\n", count);
+    printf("sum: %lld\n", sum);
+    printf("largest: %d\n", largest);
+    printf("gap: %d\n", best_gap);
+
+    if (count >= 2) {
+        printf("pair: %d %d\n", gap_left, gap_right);
+    } else {
+        printf("pair: none\n");
+    }
 
     free(composite);
     return 0;

@@ -16,11 +16,11 @@
 
 ## Problem set
 
-| # | Title | Difficulty | Points | Statement |
-|---|-------|------------|--------|-----------|
-| P1 | Linear Probing Lot | Easy | 30 | [problems/P1.md](problems/P1.md) |
-| P2 | Quadratic Quest | Medium | 35 | [problems/P2.md](problems/P2.md) |
-| P3 | Double Trouble | Medium | 35 | [problems/P3.md](problems/P3.md) |
+| # | Title | Twist | Difficulty | Points | Statement |
+|---|-------|-------|------------|--------|-----------|
+| P1 | Parking Lot | Linear probing with per-car status and probe totals | Easy | 30 | [problems/P1.md](problems/P1.md) |
+| P2 | Vault Codes | Quadratic probing with printed probe paths | Medium | 35 | [problems/P2.md](problems/P2.md) |
+| P3 | Ghost Gallery | Double hashing with tombstones | Medium | 35 | [problems/P3.md](problems/P3.md) |
 
 ## Folder guide
 

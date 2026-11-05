@@ -1,5 +1,5 @@
 /*
- * P1 - Linear Probing Lot
+ * P1 - Parking Lot
  * Read the full statement in ..\problems\P1.md.
  *
  * Compile:
@@ -8,10 +8,9 @@
  *   Get-Content ..\tests\P1\01.in | .\P1.exe
  *
  * Starter functions:
- *   hash_key       - normalize key % M
- *   table_contains - check whether a key is already stored
- *   insert_linear  - place a key using linear probing
- *   print_table    - print every slot
+ *   hash_key    - normalize key % M
+ *   park        - probe once, report parked / duplicate / full
+ *   print_table - print every slot
  */
 
 #include <stdio.h>
@@ -24,28 +23,27 @@ static int hash_key(int key, int m) {
     return 0;
 }
 
-static int table_contains(const int *table, const unsigned char *used, int m, int key) {
-    /* TODO: scan the table and return 1 if used[j] is set and table[j] == key */
+/*
+ * Returns:
+ *   0 = parked at *slot
+ *   1 = key already present at *slot
+ *   2 = table full
+ * *probes receives the number of slots examined.
+ */
+static int park(int *table, unsigned char *used, int m, int key, int *slot, int *probes) {
+    /* TODO: probe linearly from hash_key(key, m). If you meet an occupied
+       slot, compare its key. If you meet an empty slot, place the key. */
     (void)table;
     (void)used;
     (void)m;
     (void)key;
-    return 0;
-}
-
-static int insert_linear(int *table, unsigned char *used, int m, int key) {
-    /* TODO: probe (h + step) % m for step = 0..m-1.
-       Store the key in the first empty slot and return that slot.
-       Return -1 if the table is full. */
-    int h = hash_key(key, m);
-    (void)h;
-    (void)table;
-    (void)used;
-    return 0;
+    (void)slot;
+    (void)probes;
+    return 2;
 }
 
 static void print_table(const int *table, const unsigned char *used, int m) {
-    /* TODO: print "i: key" for occupied slots and "i: (empty)" otherwise */
+    /* TODO: print "i: key" for occupied slots and "i: empty" otherwise */
     (void)table;
     (void)used;
     (void)m;
@@ -53,7 +51,7 @@ static void print_table(const int *table, const unsigned char *used, int m) {
 
 int main(void) {
     int m, n;
-    if (scanf("%d %d", &m, &n) != 2) {
+    if (scanf("%d %d", &m, &n) != 2 || m <= 0) {
         return 0;
     }
 
@@ -65,18 +63,31 @@ int main(void) {
         return 1;
     }
 
+    long long total_probes = 0;
+
     for (int i = 0; i < n; i++) {
         int key;
         if (scanf("%d", &key) != 1) {
             break;
         }
 
-        if (!table_contains(table, used, m, key)) {
-            insert_linear(table, used, m, key);
+        int slot = -1;
+        int probes = 0;
+        int result = park(table, used, m, key, &slot, &probes);
+        total_probes += probes;
+
+        if (result == 0) {
+            printf("PARKED %d\n", slot);
+        } else if (result == 1) {
+            printf("ALREADY %d\n", slot);
+        } else {
+            printf("FULL\n");
         }
     }
 
+    printf("table:\n");
     print_table(table, used, m);
+    printf("probes: %lld\n", total_probes);
 
     free(table);
     free(used);

@@ -1,4 +1,11 @@
-5 7
-12 7 19 5 22 7 3
-5
-22 7 9 3 5
+5 10
+ADD alice
+ADD bob
+FIND alice
+FIND carol
+COUNT
+PRINT
+DEL bob
+FIND bob
+COUNT
+PRINT

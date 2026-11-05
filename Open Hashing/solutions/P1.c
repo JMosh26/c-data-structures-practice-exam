@@ -1,6 +1,6 @@
 /*
- * P1 - Bucket Brigade
- * Answer key: open hashing with separate chaining.
+ * P1 - Locker Loop
+ * Answer key: open hashing with head insertion and chain statistics.
  *
  * Compile:
  *   gcc -std=c11 -O2 -Wall -Wextra -o P1 P1.c
@@ -10,7 +10,8 @@
  * Solution functions:
  *   hash_key     - map a key to a bucket index
  *   contains     - check whether a key is already in a chain
- *   append       - add a key at the end of a chain
+ *   push_front   - add a key at the front of a chain
+ *   chain_length - count the nodes in one chain
  *   print_table  - print every bucket
  *   free_table   - release all chain nodes
  */
@@ -37,7 +38,7 @@ static int contains(Node *head, int key) {
     return 0;
 }
 
-static void append(Node **head, int key) {
+static void push_front(Node **head, int key) {
     Node *node = (Node *)malloc(sizeof(Node));
     if (node == NULL) {
         fprintf(stderr, "out of memory\n");
@@ -45,18 +46,18 @@ static void append(Node **head, int key) {
     }
 
     node->key = key;
-    node->next = NULL;
+    node->next = *head;
+    *head = node;
+}
 
-    if (*head == NULL) {
-        *head = node;
-        return;
+static int chain_length(Node *head) {
+    int length = 0;
+
+    for (Node *cur = head; cur != NULL; cur = cur->next) {
+        length++;
     }
 
-    Node *cur = *head;
-    while (cur->next != NULL) {
-        cur = cur->next;
-    }
-    cur->next = node;
+    return length;
 }
 
 static void print_table(Node **buckets, int m) {
@@ -90,7 +91,7 @@ static void free_table(Node **buckets, int m) {
 
 int main(void) {
     int m, n;
-    if (scanf("%d %d", &m, &n) != 2) {
+    if (scanf("%d %d", &m, &n) != 2 || m <= 0) {
         return 0;
     }
 
@@ -107,11 +108,31 @@ int main(void) {
 
         int h = hash_key(key, m);
         if (!contains(buckets[h], key)) {
-            append(&buckets[h], key);
+            push_front(&buckets[h], key);
         }
     }
 
     print_table(buckets, m);
+
+    int empty = 0;
+    int chains = 0;
+    int longest = 0;
+
+    for (int i = 0; i < m; i++) {
+        int length = chain_length(buckets[i]);
+        if (length == 0) {
+            empty++;
+        } else {
+            chains++;
+            if (length > longest) {
+                longest = length;
+            }
+        }
+    }
+
+    printf("empty: %d\n", empty);
+    printf("chains: %d\n", chains);
+    printf("longest: %d\n", longest);
 
     free_table(buckets, m);
     free(buckets);

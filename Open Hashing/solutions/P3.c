@@ -1,6 +1,6 @@
 /*
- * P3 - Word Watch
- * Answer key: open hashing used as a word-frequency table.
+ * P3 - Tag Tournament
+ * Answer key: case-insensitive open hashing plus a top-K ranking.
  *
  * Compile:
  *   gcc -std=c11 -O2 -Wall -Wextra -o P3 P3.c
@@ -8,11 +8,13 @@
  *   Get-Content ..\tests\P3\01.in | .\P3.exe
  *
  * Solution functions:
- *   lowercase_copy - copy a word while converting it to lowercase
- *   hash_word      - sum the lowercase ASCII values and take the remainder
- *   add_word       - update a count or append a new chain node
- *   print_table    - print every bucket and chain
- *   free_table     - release all chain nodes
+ *   normalize    - copy a tag while converting it to lowercase
+ *   hash_tag     - sum the lowercase ASCII values and take the remainder
+ *   add_tag      - update a count or insert a new chain node
+ *   collect_tags - gather every node pointer into an array
+ *   compare_tags - order by count descending, then tag ascending
+ *   print_top    - print the first K ranked tags
+ *   free_table   - release all chain nodes
  */
 
 #include <ctype.h>
@@ -20,15 +22,15 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define MAX_WORD 32
+#define MAX_TAG 64
 
 typedef struct Node {
-    char word[MAX_WORD];
+    char tag[MAX_TAG];
     int count;
     struct Node *next;
 } Node;
 
-static void lowercase_copy(char *destination, const char *source, size_t size) {
+static void normalize(char *destination, const char *source, size_t size) {
     if (size == 0) {
         return;
     }
@@ -41,21 +43,21 @@ static void lowercase_copy(char *destination, const char *source, size_t size) {
     destination[i] = '\0';
 }
 
-static int hash_word(const char *word, int m) {
+static int hash_tag(const char *tag, int m) {
     unsigned long sum = 0;
 
-    for (const unsigned char *p = (const unsigned char *)word; *p != '\0'; p++) {
+    for (const unsigned char *p = (const unsigned char *)tag; *p != '\0'; p++) {
         sum += *p;
     }
 
     return (int)(sum % (unsigned long)m);
 }
 
-static void add_word(Node **buckets, int m, const char *word) {
-    int h = hash_word(word, m);
+static void add_tag(Node **buckets, int m, const char *tag) {
+    int h = hash_tag(tag, m);
 
     for (Node *cur = buckets[h]; cur != NULL; cur = cur->next) {
-        if (strcmp(cur->word, word) == 0) {
+        if (strcmp(cur->tag, tag) == 0) {
             cur->count++;
             return;
         }
@@ -67,38 +69,45 @@ static void add_word(Node **buckets, int m, const char *word) {
         exit(1);
     }
 
-    strcpy(node->word, word);
+    strcpy(node->tag, tag);
     node->count = 1;
-    node->next = NULL;
+    node->next = buckets[h];
+    buckets[h] = node;
+}
 
-    if (buckets[h] == NULL) {
-        buckets[h] = node;
+static int collect_tags(Node **buckets, int m, Node **out) {
+    int total = 0;
+
+    for (int i = 0; i < m; i++) {
+        for (Node *cur = buckets[i]; cur != NULL; cur = cur->next) {
+            out[total++] = cur;
+        }
+    }
+
+    return total;
+}
+
+static int compare_tags(const void *a, const void *b) {
+    const Node *left = *(const Node *const *)a;
+    const Node *right = *(const Node *const *)b;
+
+    if (left->count != right->count) {
+        return right->count - left->count;
+    }
+
+    return strcmp(left->tag, right->tag);
+}
+
+static void print_top(Node **items, int count, int k) {
+    if (count == 0 || k <= 0) {
+        printf("(none)\n");
         return;
     }
 
-    Node *cur = buckets[h];
-    while (cur->next != NULL) {
-        cur = cur->next;
-    }
-    cur->next = node;
-}
+    int limit = k < count ? k : count;
 
-static void print_table(Node **buckets, int m) {
-    for (int i = 0; i < m; i++) {
-        printf("%d:", i);
-
-        if (buckets[i] == NULL) {
-            printf(" (empty)\n");
-            continue;
-        }
-
-        for (Node *cur = buckets[i]; cur != NULL; cur = cur->next) {
-            printf(" %s:%d", cur->word, cur->count);
-            if (cur->next != NULL) {
-                printf(" ->");
-            }
-        }
-        printf("\n");
+    for (int i = 0; i < limit; i++) {
+        printf("%s %d\n", items[i]->tag, items[i]->count);
     }
 }
 
@@ -113,8 +122,8 @@ static void free_table(Node **buckets, int m) {
 }
 
 int main(void) {
-    int m;
-    if (scanf("%d", &m) != 1 || m <= 0) {
+    int m, k;
+    if (scanf("%d %d", &m, &k) != 2 || m <= 0) {
         return 0;
     }
 
@@ -124,15 +133,27 @@ int main(void) {
     }
 
     char raw[128];
-    char word[MAX_WORD] = {0};
+    char tag[MAX_TAG];
+    int total = 0;
 
     while (scanf("%127s", raw) == 1) {
-        lowercase_copy(word, raw, sizeof(word));
-        add_word(buckets, m, word);
+        normalize(tag, raw, sizeof(tag));
+        add_tag(buckets, m, tag);
+        total++;
     }
 
-    print_table(buckets, m);
+    Node **items = (Node **)malloc((size_t)(total > 0 ? total : 1) * sizeof(Node *));
+    if (items == NULL) {
+        free_table(buckets, m);
+        free(buckets);
+        return 1;
+    }
 
+    int unique = collect_tags(buckets, m, items);
+    qsort(items, (size_t)unique, sizeof(Node *), compare_tags);
+    print_top(items, unique, k);
+
+    free(items);
     free_table(buckets, m);
     free(buckets);
     return 0;

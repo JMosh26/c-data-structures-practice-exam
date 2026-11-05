@@ -1,6 +1,6 @@
 /*
- * P2 - Sieve of Bits
- * Answer key: Sieve of Eratosthenes using a bit vector.
+ * P2 - Prime Stamp
+ * Answer key: a bit-vector sieve plus prime-gap statistics.
  *
  * Compile:
  *   gcc -std=c11 -O2 -Wall -Wextra -o P2 P2.c
@@ -43,6 +43,11 @@ static void sieve(uint64_t *bits, int n) {
 int main(void) {
     int n;
     if (scanf("%d", &n) != 1 || n < 2) {
+        printf("primes: 0\n");
+        printf("sum: 0\n");
+        printf("largest: 0\n");
+        printf("gap: 0\n");
+        printf("pair: none\n");
         return 0;
     }
 
@@ -56,16 +61,42 @@ int main(void) {
     int count = 0;
     int largest = 0;
     long long sum = 0;
+    int previous = -1;
+    int best_gap = 0;
+    int gap_left = 0;
+    int gap_right = 0;
 
     for (int value = 2; value <= n; value++) {
-        if (!is_composite(composite, value)) {
-            count++;
-            sum += value;
-            largest = value;
+        if (is_composite(composite, value)) {
+            continue;
         }
+
+        count++;
+        sum += value;
+        largest = value;
+
+        if (previous >= 0) {
+            int gap = value - previous;
+            if (gap > best_gap) {
+                best_gap = gap;
+                gap_left = previous;
+                gap_right = value;
+            }
+        }
+
+        previous = value;
     }
 
-    printf("%d\n%lld\n%d\n", count, sum, largest);
+    printf("primes: %d\n", count);
+    printf("sum: %lld\n", sum);
+    printf("largest: %d\n", largest);
+    printf("gap: %d\n", best_gap);
+
+    if (count >= 2) {
+        printf("pair: %d %d\n", gap_left, gap_right);
+    } else {
+        printf("pair: none\n");
+    }
 
     free(composite);
     return 0;

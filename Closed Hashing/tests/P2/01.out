@@ -1,9 +1,14 @@
-FAILED 28
-probes: 17
+0: 0
+7: 0 -> 1
+14: 0 -> 1 -> 4
+7: DUP at 1
+21: 0 -> 1 -> 4 -> 2
+table:
 0: 0
 1: 7
 2: 21
-3: (empty)
+3: empty
 4: 14
-5: (empty)
-6: (empty)
+5: empty
+6: empty
+probes: 22

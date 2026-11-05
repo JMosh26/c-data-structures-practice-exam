@@ -1,3 +1,5 @@
-1
-2
-2
+primes: 1
+sum: 2
+largest: 2
+gap: 0
+pair: none

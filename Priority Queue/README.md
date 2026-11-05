@@ -16,11 +16,11 @@
 
 ## Problem set
 
-| # | Title | Difficulty | Points | Statement |
-|---|-------|------------|--------|-----------|
-| P1 | Min-Heap Machine | Medium | 30 | [problems/P1.md](problems/P1.md) |
-| P2 | ER Triage | Medium | 35 | [problems/P2.md](problems/P2.md) |
-| P3 | Merge the Streams | Hard | 35 | [problems/P3.md](problems/P3.md) |
+| # | Title | Twist | Difficulty | Points | Statement |
+|---|-------|-------|------------|--------|-----------|
+| P1 | Roller Coaster | Min-heap with batch `TAKE k` extraction | Easy | 30 | [problems/P1.md](problems/P1.md) |
+| P2 | Air Traffic | Three-key flight comparator | Medium | 35 | [problems/P2.md](problems/P2.md) |
+| P3 | Stream Merger | Descending stable k-way merge | Hard | 35 | [problems/P3.md](problems/P3.md) |
 
 ## Folder guide
 

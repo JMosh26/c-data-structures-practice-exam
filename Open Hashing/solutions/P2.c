@@ -1,6 +1,6 @@
 /*
- * P2 - Lost and Found
- * Answer key: open hashing with separate chaining and search queries.
+ * P2 - Reunion Registry
+ * Answer key: open hashing with string keys, weighted hashing, and deletion.
  *
  * Compile:
  *   gcc -std=c11 -O2 -Wall -Wextra -o P2 P2.c
@@ -8,43 +8,54 @@
  *   Get-Content ..\tests\P2\01.in | .\P2.exe
  *
  * Solution functions:
- *   hash_key      - map a key to a bucket index
- *   contains      - check whether a key is already in a chain
- *   append        - add a key at the end of a chain
- *   find_position - return the 1-based chain position, or 0 if absent
+ *   hash_name     - weighted character sum modulo M
+ *   find_node     - return the node holding a name, or NULL
+ *   append        - add a name at the end of a chain
+ *   remove_name   - unlink a name and free its node
+ *   find_position - return the 1-based chain position, or 0
+ *   count_nodes   - count all names in the table
+ *   print_table   - print every bucket and chain
  *   free_table    - release all chain nodes
  */
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+
+#define MAX_NAME 32
 
 typedef struct Node {
-    int key;
+    char name[MAX_NAME];
     struct Node *next;
 } Node;
 
-static int hash_key(int key, int m) {
-    int h = key % m;
-    return h < 0 ? h + m : h;
+static int hash_name(const char *name, int m) {
+    unsigned long long sum = 0;
+
+    for (int i = 0; name[i] != '\0'; i++) {
+        sum += (unsigned long long)(i + 1) * (unsigned char)name[i];
+    }
+
+    return (int)(sum % (unsigned long long)m);
 }
 
-static int contains(Node *head, int key) {
+static Node *find_node(Node *head, const char *name) {
     for (Node *cur = head; cur != NULL; cur = cur->next) {
-        if (cur->key == key) {
-            return 1;
+        if (strcmp(cur->name, name) == 0) {
+            return cur;
         }
     }
-    return 0;
+    return NULL;
 }
 
-static void append(Node **head, int key) {
+static void append(Node **head, const char *name) {
     Node *node = (Node *)malloc(sizeof(Node));
     if (node == NULL) {
         fprintf(stderr, "out of memory\n");
         exit(1);
     }
 
-    node->key = key;
+    strcpy(node->name, name);
     node->next = NULL;
 
     if (*head == NULL) {
@@ -59,16 +70,65 @@ static void append(Node **head, int key) {
     cur->next = node;
 }
 
-static int find_position(Node *head, int key) {
+static int remove_name(Node **head, const char *name) {
+    Node **trav = head;
+
+    while (*trav != NULL && strcmp((*trav)->name, name) != 0) {
+        trav = &(*trav)->next;
+    }
+
+    if (*trav == NULL) {
+        return 0;
+    }
+
+    Node *tmp = *trav;
+    *trav = tmp->next;
+    free(tmp);
+    return 1;
+}
+
+static int find_position(Node *head, const char *name) {
     int position = 0;
 
     for (Node *cur = head; cur != NULL; cur = cur->next) {
         position++;
-        if (cur->key == key) {
+        if (strcmp(cur->name, name) == 0) {
             return position;
         }
     }
+
     return 0;
+}
+
+static int count_nodes(Node **buckets, int m) {
+    int total = 0;
+
+    for (int i = 0; i < m; i++) {
+        for (Node *cur = buckets[i]; cur != NULL; cur = cur->next) {
+            total++;
+        }
+    }
+
+    return total;
+}
+
+static void print_table(Node **buckets, int m) {
+    for (int i = 0; i < m; i++) {
+        printf("%d:", i);
+
+        if (buckets[i] == NULL) {
+            printf(" (empty)\n");
+            continue;
+        }
+
+        for (Node *cur = buckets[i]; cur != NULL; cur = cur->next) {
+            printf(" %s", cur->name);
+            if (cur->next != NULL) {
+                printf(" ->");
+            }
+        }
+        printf("\n");
+    }
 }
 
 static void free_table(Node **buckets, int m) {
@@ -82,8 +142,8 @@ static void free_table(Node **buckets, int m) {
 }
 
 int main(void) {
-    int m, n;
-    if (scanf("%d %d", &m, &n) != 2) {
+    int m, q;
+    if (scanf("%d %d", &m, &q) != 2 || m <= 0) {
         return 0;
     }
 
@@ -92,34 +152,37 @@ int main(void) {
         return 1;
     }
 
-    for (int i = 0; i < n; i++) {
-        int key;
-        if (scanf("%d", &key) != 1) {
+    char command[16];
+    char name[MAX_NAME];
+
+    for (int i = 0; i < q; i++) {
+        if (scanf("%15s", command) != 1) {
             break;
         }
 
-        int h = hash_key(key, m);
-        if (!contains(buckets[h], key)) {
-            append(&buckets[h], key);
-        }
-    }
-
-    int q;
-    if (scanf("%d", &q) == 1) {
-        for (int i = 0; i < q; i++) {
-            int query;
-            if (scanf("%d", &query) != 1) {
-                break;
+        if (strcmp(command, "ADD") == 0) {
+            scanf("%31s", name);
+            int h = hash_name(name, m);
+            if (find_node(buckets[h], name) == NULL) {
+                append(&buckets[h], name);
             }
-
-            int h = hash_key(query, m);
-            int position = find_position(buckets[h], query);
-
+        } else if (strcmp(command, "DEL") == 0) {
+            scanf("%31s", name);
+            int h = hash_name(name, m);
+            printf("%s\n", remove_name(&buckets[h], name) ? "REMOVED" : "MISSING");
+        } else if (strcmp(command, "FIND") == 0) {
+            scanf("%31s", name);
+            int h = hash_name(name, m);
+            int position = find_position(buckets[h], name);
             if (position > 0) {
                 printf("FOUND %d %d\n", h, position);
             } else {
                 printf("NOT FOUND\n");
             }
+        } else if (strcmp(command, "COUNT") == 0) {
+            printf("%d\n", count_nodes(buckets, m));
+        } else if (strcmp(command, "PRINT") == 0) {
+            print_table(buckets, m);
         }
     }
 

@@ -21,10 +21,27 @@ and auto-grader.
 
 | Topic | P1 (30 pts) | P2 (35 pts) | P3 (35 pts) |
 |-------|-------------|-------------|-------------|
-| Open Hashing | Bucket Brigade | Lost and Found | Word Watch |
-| Closed Hashing | Linear Probing Lot | Quadratic Quest | Double Trouble |
-| Bit Vectors | Bit Vector Playground | Sieve of Bits | Bitset Algebra |
-| Priority Queue | Min-Heap Machine | ER Triage | Merge the Streams |
+| Open Hashing | Locker Loop | Reunion Registry | Tag Tournament |
+| Closed Hashing | Parking Lot | Vault Codes | Ghost Gallery |
+| Bit Vectors | Light Panel | Prime Stamp | Set Duel |
+| Priority Queue | Roller Coaster | Air Traffic | Stream Merger |
+
+### Twists at a glance
+
+| Problem | What makes it different |
+|---------|-------------------------|
+| Locker Loop | New keys go at the **head** of each chain, then chain statistics are printed. |
+| Reunion Registry | Weighted **string** hash with deletion and 1-based chain positions. |
+| Tag Tournament | **Case-insensitive** tags, counts, and a top-K ranking with a lexicographic tie-break. |
+| Parking Lot | Linear probing that reports a status for **every** arrival plus a probe total. |
+| Vault Codes | Quadratic probing that prints the **entire probe path** for each insertion. |
+| Ghost Gallery | Double hashing with **tombstones** and tombstone reuse. |
+| Light Panel | 32-bit **range** SET / CLEAR / FLIP operations instead of single bits. |
+| Prime Stamp | A bit-vector sieve that also reports the **largest prime gap** and its pair. |
+| Set Duel | Set algebra with **subset**, **disjoint**, and **same** comparisons. |
+| Roller Coaster | A min-heap with batch **`TAKE k`** extraction and an internal-array dump. |
+| Air Traffic | A **three-key** comparator: emergency, then time, then flight name. |
+| Stream Merger | A **descending stable** k-way merge across non-increasing streams. |
 
 Every problem includes:
 
@@ -163,6 +180,7 @@ C Coding Practice/
 - Suggested partial credit: `problem points × (tests passed / 4)`, rounded to the nearest
   whole point.
 - The tests include edge cases such as empty tables, negative keys, duplicates, full
-  tables, leading zeros, a 64-bit vector, and priority ties.
+  tables, quadratic-probe failure cycles, tombstones, 64-bit sets, a 1,000,000 sieve,
+  comparator ties, and empty streams.
 - Students can read the `.in` and `.out` files, so use the included hidden-style cases as
   practice only. For a real exam, replace them with fresh cases and remove `solutions/`.

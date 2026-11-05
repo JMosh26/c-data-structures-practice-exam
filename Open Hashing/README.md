@@ -16,11 +16,11 @@
 
 ## Problem set
 
-| # | Title | Difficulty | Points | Statement |
-|---|-------|------------|--------|-----------|
-| P1 | Bucket Brigade | Easy | 30 | [problems/P1.md](problems/P1.md) |
-| P2 | Lost and Found | Medium | 35 | [problems/P2.md](problems/P2.md) |
-| P3 | Word Watch | Medium | 35 | [problems/P3.md](problems/P3.md) |
+| # | Title | Twist | Difficulty | Points | Statement |
+|---|-------|-------|------------|--------|-----------|
+| P1 | Locker Loop | Head insertion plus chain statistics | Easy | 30 | [problems/P1.md](problems/P1.md) |
+| P2 | Reunion Registry | Weighted string hash, deletion, and chain positions | Medium | 35 | [problems/P2.md](problems/P2.md) |
+| P3 | Tag Tournament | Case-insensitive counting and top-K ranking | Medium | 35 | [problems/P3.md](problems/P3.md) |
 
 ## Folder guide
 

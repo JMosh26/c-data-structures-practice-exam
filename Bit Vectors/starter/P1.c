@@ -1,5 +1,5 @@
 /*
- * P1 - Bit Vector Playground
+ * P1 - Light Panel
  * Read the full statement in ..\problems\P1.md.
  *
  * Compile:
@@ -8,53 +8,63 @@
  *   Get-Content ..\tests\P1\01.in | .\P1.exe
  *
  * Starter functions:
- *   set_bit    - turn one bit on
- *   clear_bit  - turn one bit off
- *   flip_bit   - toggle one bit
- *   get_bit    - read one bit
- *   count_bits - count the set bits
- *   print_bits - print all 64 bits, most significant first
+ *   range_mask  - build a mask covering bits a..b inclusive
+ *   set_range   - turn every bit in a..b on
+ *   clear_range - turn every bit in a..b off
+ *   flip_range  - toggle every bit in a..b
+ *   get_bit     - read one bit
+ *   count_bits  - count the set bits
+ *   print_bits  - print all 32 bits, most significant first
  */
 
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 
-static void set_bit(uint64_t *bits, int position) {
-    /* TODO: bits |= 1ULL << position */
-    (void)bits;
-    (void)position;
+static uint32_t range_mask(int a, int b) {
+    /* TODO: return a mask with bits a..b set. Handle the full 32-bit range. */
+    (void)a;
+    (void)b;
+    return 0;
 }
 
-static void clear_bit(uint64_t *bits, int position) {
-    /* TODO: bits &= ~(1ULL << position) */
+static void set_range(uint32_t *bits, int a, int b) {
+    /* TODO: bits |= range_mask(a, b) */
     (void)bits;
-    (void)position;
+    (void)a;
+    (void)b;
 }
 
-static void flip_bit(uint64_t *bits, int position) {
-    /* TODO: bits ^= 1ULL << position */
+static void clear_range(uint32_t *bits, int a, int b) {
+    /* TODO: bits &= ~range_mask(a, b) */
     (void)bits;
-    (void)position;
+    (void)a;
+    (void)b;
 }
 
-static int get_bit(uint64_t bits, int position) {
-    /* TODO: return (bits >> position) & 1ULL */
+static void flip_range(uint32_t *bits, int a, int b) {
+    /* TODO: bits ^= range_mask(a, b) */
+    (void)bits;
+    (void)a;
+    (void)b;
+}
+
+static int get_bit(uint32_t bits, int position) {
+    /* TODO: return (bits >> position) & 1 */
     (void)bits;
     (void)position;
     return 0;
 }
 
-static int count_bits(uint64_t bits) {
-    /* TODO: count the number of 1 bits */
+static int count_bits(uint32_t bits) {
+    /* TODO: count the set bits (Kernighan's trick is a good choice) */
     (void)bits;
     return 0;
 }
 
-static void print_bits(uint64_t bits) {
-    /* TODO: print bit 63 down to bit 0, then a newline */
+static void print_bits(uint32_t bits) {
+    /* TODO: print bits 31 down to 0 as '0' or '1', then a newline */
     (void)bits;
-    putchar('\n');
 }
 
 int main(void) {
@@ -63,7 +73,7 @@ int main(void) {
         return 0;
     }
 
-    uint64_t bits = 0;
+    uint32_t bits = 0;
     char command[16];
 
     for (int i = 0; i < q; i++) {
@@ -72,17 +82,17 @@ int main(void) {
         }
 
         if (strcmp(command, "SET") == 0) {
-            int position;
-            scanf("%d", &position);
-            set_bit(&bits, position);
+            int a, b;
+            scanf("%d %d", &a, &b);
+            set_range(&bits, a, b);
         } else if (strcmp(command, "CLEAR") == 0) {
-            int position;
-            scanf("%d", &position);
-            clear_bit(&bits, position);
+            int a, b;
+            scanf("%d %d", &a, &b);
+            clear_range(&bits, a, b);
         } else if (strcmp(command, "FLIP") == 0) {
-            int position;
-            scanf("%d", &position);
-            flip_bit(&bits, position);
+            int a, b;
+            scanf("%d %d", &a, &b);
+            flip_range(&bits, a, b);
         } else if (strcmp(command, "GET") == 0) {
             int position;
             scanf("%d", &position);

@@ -1,3 +1,10 @@
-FOUND 0 1
-FOUND 0 2
+0: (empty)
+1: (empty)
+2: (empty)
+0
 NOT FOUND
+MISSING
+FOUND 2 1
+0: (empty)
+1: (empty)
+2: z9

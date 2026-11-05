@@ -1,7 +1,14 @@
-0: 7
-1: 15
-2: 22
+PARKED 3
+PARKED 4
+PARKED 5
+PARKED 6
+PARKED 0
+table:
+0: 31
+1: empty
+2: empty
 3: 10
-4: (empty)
-5: (empty)
-6: 20
+4: 3
+5: 17
+6: 24
+probes: 15

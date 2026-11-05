@@ -16,11 +16,11 @@
 
 ## Problem set
 
-| # | Title | Difficulty | Points | Statement |
-|---|-------|------------|--------|-----------|
-| P1 | Bit Vector Playground | Easy | 30 | [problems/P1.md](problems/P1.md) |
-| P2 | Sieve of Bits | Medium | 35 | [problems/P2.md](problems/P2.md) |
-| P3 | Bitset Algebra | Medium | 35 | [problems/P3.md](problems/P3.md) |
+| # | Title | Twist | Difficulty | Points | Statement |
+|---|-------|-------|------------|--------|-----------|
+| P1 | Light Panel | 32-bit range SET / CLEAR / FLIP operations | Easy | 30 | [problems/P1.md](problems/P1.md) |
+| P2 | Prime Stamp | Bit-vector sieve with prime-gap statistics | Medium | 35 | [problems/P2.md](problems/P2.md) |
+| P3 | Set Duel | Set algebra with subset / disjoint / same checks | Medium | 35 | [problems/P3.md](problems/P3.md) |
 
 ## Folder guide
 

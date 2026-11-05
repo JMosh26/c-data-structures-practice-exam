@@ -1,5 +1,5 @@
 /*
- * P3 - Merge the Streams
+ * P3 - Stream Merger
  * Read the full statement in ..\problems\P3.md.
  *
  * Compile:
@@ -8,14 +8,9 @@
  *   Get-Content ..\tests\P3\01.in | .\P3.exe
  *
  * Starter functions:
- *   push - add an Item to the min-heap and bubble it up
- *   pop  - remove the smallest Item and sift the last Item down
- *
- * Suggested helper (write it yourself):
- *   comes_before(a, b) - true when a.value < b.value.
- *
- * The main() function already reads the lists, seeds the heap with each
- * list's first value, and performs the merge loop.
+ *   comes_before - true when a should leave the heap before b
+ *   push         - add an Item and bubble it up
+ *   pop          - remove the best Item and sift the last Item down
  */
 
 #include <stdio.h>
@@ -32,16 +27,29 @@ typedef struct {
     int length;
 } List;
 
+static int comes_before(Item a, Item b) {
+    /* TODO: larger value first; on a tie, smaller list index first */
+    (void)a;
+    (void)b;
+    return 0;
+}
+
+static void swap(Item *a, Item *b) {
+    /* TODO: exchange *a and *b */
+    (void)a;
+    (void)b;
+}
+
 static void push(Item *heap, int *size, Item item) {
-    /* TODO: append at heap[*size], increment *size, then bubble up by value */
+    /* TODO: append the item and bubble it up */
     (void)heap;
     (void)size;
     (void)item;
 }
 
 static Item pop(Item *heap, int *size) {
-    /* TODO: save the root, move the last Item to the root, decrement *size,
-       then sift down by value */
+    /* TODO: save the root, move the last item to the root, sift down,
+       and return the saved item */
     (void)heap;
     (void)size;
     Item empty = {0, 0, 0};
@@ -97,6 +105,16 @@ int main(void) {
         }
     }
 
+    if (heap_size == 0) {
+        printf("EMPTY\n");
+        free(heap);
+        for (int i = 0; i < k; i++) {
+            free(lists[i].data);
+        }
+        free(lists);
+        return 0;
+    }
+
     int first = 1;
 
     while (heap_size > 0) {
@@ -116,10 +134,10 @@ int main(void) {
     }
     putchar('\n');
 
+    free(heap);
     for (int i = 0; i < k; i++) {
         free(lists[i].data);
     }
     free(lists);
-    free(heap);
     return 0;
 }

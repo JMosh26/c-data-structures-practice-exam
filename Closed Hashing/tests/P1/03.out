@@ -1,5 +1,13 @@
+PARKED 4
+PARKED 0
+PARKED 1
+PARKED 2
+PARKED 3
+FULL
+table:
 0: -6
 1: 4
 2: 9
 3: 14
 4: -1
+probes: 20

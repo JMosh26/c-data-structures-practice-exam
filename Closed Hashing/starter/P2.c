@@ -1,5 +1,5 @@
 /*
- * P2 - Quadratic Quest
+ * P2 - Vault Codes
  * Read the full statement in ..\problems\P2.md.
  *
  * Compile:
@@ -8,14 +8,16 @@
  *   Get-Content ..\tests\P2\01.in | .\P2.exe
  *
  * Starter functions:
- *   hash_key       - normalize key % M
- *   table_contains - check whether a key is already stored
- *   insert_quadratic - place a key and count the probes
- *   print_table    - print every slot
+ *   hash_key         - normalize key % M
+ *   find_quadratic   - search a quadratic probe path
+ *   insert_quadratic - place a key and record the path
+ *   print_table      - print every slot
  */
 
 #include <stdio.h>
 #include <stdlib.h>
+
+#define MAX_SLOTS 1000
 
 static int hash_key(int key, int m) {
     /* TODO: return ((key % m) + m) % m */
@@ -24,29 +26,33 @@ static int hash_key(int key, int m) {
     return 0;
 }
 
-static int table_contains(const int *table, const unsigned char *used, int m, int key) {
-    /* TODO: scan the table and return 1 if used[j] is set and table[j] == key */
+static int find_quadratic(const int *table, const unsigned char *used, int m, int key, int *probes) {
+    /* TODO: follow (h + step * step) % m until an empty slot or the key.
+       Count every slot examined in *probes. Return the slot or -1. */
     (void)table;
     (void)used;
     (void)m;
     (void)key;
-    return 0;
+    (void)probes;
+    return -1;
 }
 
-static int insert_quadratic(int *table, unsigned char *used, int m, int key, int *probes) {
-    /* TODO: probe (h + i*i) % m for i = 0..m-1.
-       Add 1 to *probes for every slot examined.
-       Return the slot where the key was placed, or -1 if it could not be placed. */
-    int h = hash_key(key, m);
-    (void)h;
+static int insert_quadratic(int *table, unsigned char *used, int m, int key,
+                            int *path, int *path_length, int *probes) {
+    /* TODO: follow the same probe path, append every visited slot to path,
+       and place the key in the first empty slot. Return the slot or -1. */
     (void)table;
     (void)used;
-    *probes = 0;
-    return 0;
+    (void)m;
+    (void)key;
+    (void)path;
+    (void)path_length;
+    (void)probes;
+    return -1;
 }
 
 static void print_table(const int *table, const unsigned char *used, int m) {
-    /* TODO: print "i: key" for occupied slots and "i: (empty)" otherwise */
+    /* TODO: print "i: key" for occupied slots and "i: empty" otherwise */
     (void)table;
     (void)used;
     (void)m;
@@ -54,7 +60,7 @@ static void print_table(const int *table, const unsigned char *used, int m) {
 
 int main(void) {
     int m, n;
-    if (scanf("%d %d", &m, &n) != 2) {
+    if (scanf("%d %d", &m, &n) != 2 || m <= 0) {
         return 0;
     }
 
@@ -66,7 +72,7 @@ int main(void) {
         return 1;
     }
 
-    int total_probes = 0;
+    long long total_probes = 0;
 
     for (int i = 0; i < n; i++) {
         int key;
@@ -74,21 +80,36 @@ int main(void) {
             break;
         }
 
-        if (table_contains(table, used, m, key)) {
+        int probes = 0;
+        int slot = find_quadratic(table, used, m, key, &probes);
+        total_probes += probes;
+
+        if (slot >= 0) {
+            printf("%d: DUP at %d\n", key, slot);
             continue;
         }
 
-        int probes = 0;
-        int slot = insert_quadratic(table, used, m, key, &probes);
+        int path[MAX_SLOTS];
+        int path_length = 0;
+        slot = insert_quadratic(table, used, m, key, path, &path_length, &probes);
         total_probes += probes;
 
-        if (slot < 0) {
-            printf("FAILED %d\n", key);
+        printf("%d:", key);
+        for (int j = 0; j < path_length; j++) {
+            printf(" %d", path[j]);
+            if (j + 1 < path_length) {
+                printf(" ->");
+            }
         }
+        if (slot < 0) {
+            printf(" -> FAIL");
+        }
+        printf("\n");
     }
 
-    printf("probes: %d\n", total_probes);
+    printf("table:\n");
     print_table(table, used, m);
+    printf("probes: %lld\n", total_probes);
 
     free(table);
     free(used);

@@ -1,7 +1,18 @@
-0: (empty)
-1: (empty)
-2: 17
+ADDED 3
+ADDED 2
+ADDED 4
+YES 2
+DELETED 2
+NO
+ADDED 5
+3
+0: empty
+1: empty
+2: tomb
 3: 10
 4: 24
 5: 31
-6: (empty)
+6: empty
+MISSING
+EXISTS
+3
