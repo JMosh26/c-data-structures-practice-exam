@@ -33,6 +33,73 @@ Every problem includes:
 - a working answer key (`solutions/Pn.c`),
 - four test cases (`tests/Pn/01.in` … `04.in` with matching `.out` files).
 
+## Repository setup
+
+These steps assume Git is installed. If you already have a local copy of the project,
+skip to [Quick start](#quick-start).
+
+### Clone the repository
+
+```powershell
+git clone https://github.com/YOUR-USERNAME/c-data-structures-practice-exam.git
+cd "c-data-structures-practice-exam"
+```
+
+If you downloaded the project as a ZIP instead, extract it and open PowerShell in the
+extracted folder.
+
+### Publish this folder as a new GitHub repository
+
+1. Create a new **empty** repository at <https://github.com/new>.
+   - Do **not** initialize it with a README, `.gitignore`, or license. This project
+     already contains those files.
+2. Connect the local repository to GitHub and push:
+
+```powershell
+git remote add origin https://github.com/YOUR-USERNAME/REPO-NAME.git
+git push -u origin main
+```
+
+Replace `YOUR-USERNAME` and `REPO-NAME` with your GitHub username and repository name.
+
+If `origin` already exists, update it instead:
+
+```powershell
+git remote set-url origin https://github.com/YOUR-USERNAME/REPO-NAME.git
+git push -u origin main
+```
+
+If GitHub rejects the push because the remote repository already has commits, rebase
+onto it and try again:
+
+```powershell
+git pull --rebase origin main
+git push -u origin main
+```
+
+### Authentication
+
+On the first HTTPS push, Git Credential Manager should open a browser sign-in window.
+If Git asks for a password, use a **Personal Access Token** (PAT), not your GitHub
+account password.
+
+If you use SSH keys, use the SSH remote instead:
+
+```powershell
+git remote add origin git@github.com:YOUR-USERNAME/REPO-NAME.git
+git push -u origin main
+```
+
+### Save later changes
+
+After editing the project, commit and push normally:
+
+```powershell
+git add .
+git commit -m "Describe your change"
+git push
+```
+
 ## Quick start
 
 ```powershell
