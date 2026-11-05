@@ -1,11 +1,18 @@
 /*
  * P3 - Double Trouble
- * Closed hashing with double hashing:
- *   h1(k) = k mod M
- *   h2(k) = 1 + (k mod (M - 1))
- *   slot  = (h1(k) + i * h2(k)) mod M
+ * Answer key: closed hashing with double hashing.
  *
- * Compile: gcc -std=c11 -O2 -Wall -Wextra -o P3 P3.c
+ * Compile:
+ *   gcc -std=c11 -O2 -Wall -Wextra -o P3 P3.c
+ * Run:
+ *   Get-Content ..\tests\P3\01.in | .\P3.exe
+ *
+ * Solution functions:
+ *   hash_key       - compute h1(k)
+ *   hash_step      - compute h2(k), which is never zero
+ *   table_contains - check whether a key is already stored
+ *   insert_double  - place a key using double hashing
+ *   print_table    - print every slot
  */
 
 #include <stdio.h>
@@ -23,6 +30,42 @@ static int hash_step(int key, int m) {
         h += mod;
     }
     return 1 + h;
+}
+
+static int table_contains(const int *table, const unsigned char *used, int m, int key) {
+    for (int i = 0; i < m; i++) {
+        if (used[i] && table[i] == key) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+static int insert_double(int *table, unsigned char *used, int m, int key) {
+    int h1 = hash_key(key, m);
+    int h2 = hash_step(key, m);
+
+    for (int step = 0; step < m; step++) {
+        int index = (int)(((long long)h1 + (long long)step * h2) % m);
+
+        if (!used[index]) {
+            used[index] = 1;
+            table[index] = key;
+            return index;
+        }
+    }
+
+    return -1;
+}
+
+static void print_table(const int *table, const unsigned char *used, int m) {
+    for (int i = 0; i < m; i++) {
+        if (used[i]) {
+            printf("%d: %d\n", i, table[i]);
+        } else {
+            printf("%d: (empty)\n", i);
+        }
+    }
 }
 
 int main(void) {
@@ -45,43 +88,16 @@ int main(void) {
             break;
         }
 
-        int duplicate = 0;
-        for (int j = 0; j < m; j++) {
-            if (used[j] && table[j] == key) {
-                duplicate = 1;
-                break;
-            }
-        }
-        if (duplicate) {
+        if (table_contains(table, used, m, key)) {
             continue;
         }
 
-        int h1 = hash_key(key, m);
-        int h2 = hash_step(key, m);
-        int placed = 0;
-
-        for (int step = 0; step < m; step++) {
-            int idx = (int)(((long long)h1 + (long long)step * h2) % m);
-            if (!used[idx]) {
-                used[idx] = 1;
-                table[idx] = key;
-                placed = 1;
-                break;
-            }
-        }
-
-        if (!placed) {
+        if (insert_double(table, used, m, key) < 0) {
             printf("FAILED %d\n", key);
         }
     }
 
-    for (int i = 0; i < m; i++) {
-        if (used[i]) {
-            printf("%d: %d\n", i, table[i]);
-        } else {
-            printf("%d: (empty)\n", i);
-        }
-    }
+    print_table(table, used, m);
 
     free(table);
     free(used);

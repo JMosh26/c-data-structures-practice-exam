@@ -1,8 +1,18 @@
 /*
  * P1 - Bucket Brigade
- * Open hashing (separate chaining): insert keys, then print every bucket.
+ * Answer key: open hashing with separate chaining.
  *
- * Compile: gcc -std=c11 -O2 -Wall -Wextra -o P1 P1.c
+ * Compile:
+ *   gcc -std=c11 -O2 -Wall -Wextra -o P1 P1.c
+ * Run:
+ *   Get-Content ..\tests\P1\01.in | .\P1.exe
+ *
+ * Solution functions:
+ *   hash_key     - map a key to a bucket index
+ *   contains     - check whether a key is already in a chain
+ *   append       - add a key at the end of a chain
+ *   print_table  - print every bucket
+ *   free_table   - release all chain nodes
  */
 
 #include <stdio.h>
@@ -33,6 +43,7 @@ static void append(Node **head, int key) {
         fprintf(stderr, "out of memory\n");
         exit(1);
     }
+
     node->key = key;
     node->next = NULL;
 
@@ -40,11 +51,41 @@ static void append(Node **head, int key) {
         *head = node;
         return;
     }
+
     Node *cur = *head;
     while (cur->next != NULL) {
         cur = cur->next;
     }
     cur->next = node;
+}
+
+static void print_table(Node **buckets, int m) {
+    for (int i = 0; i < m; i++) {
+        printf("%d:", i);
+
+        if (buckets[i] == NULL) {
+            printf(" (empty)\n");
+            continue;
+        }
+
+        for (Node *cur = buckets[i]; cur != NULL; cur = cur->next) {
+            printf(" %d", cur->key);
+            if (cur->next != NULL) {
+                printf(" ->");
+            }
+        }
+        printf("\n");
+    }
+}
+
+static void free_table(Node **buckets, int m) {
+    for (int i = 0; i < m; i++) {
+        while (buckets[i] != NULL) {
+            Node *tmp = buckets[i];
+            buckets[i] = tmp->next;
+            free(tmp);
+        }
+    }
 }
 
 int main(void) {
@@ -63,33 +104,16 @@ int main(void) {
         if (scanf("%d", &key) != 1) {
             break;
         }
+
         int h = hash_key(key, m);
         if (!contains(buckets[h], key)) {
             append(&buckets[h], key);
         }
     }
 
-    for (int i = 0; i < m; i++) {
-        printf("%d:", i);
-        if (buckets[i] == NULL) {
-            printf(" (empty)\n");
-        } else {
-            for (Node *cur = buckets[i]; cur != NULL; cur = cur->next) {
-                printf(" %d", cur->key);
-                if (cur->next != NULL) {
-                    printf(" ->");
-                }
-            }
-            printf("\n");
-        }
+    print_table(buckets, m);
 
-        while (buckets[i] != NULL) {
-            Node *tmp = buckets[i];
-            buckets[i] = tmp->next;
-            free(tmp);
-        }
-    }
-
+    free_table(buckets, m);
     free(buckets);
     return 0;
 }

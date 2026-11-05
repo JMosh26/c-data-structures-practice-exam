@@ -1,8 +1,17 @@
 /*
  * P2 - Quadratic Quest
- * Closed hashing with quadratic probing: index = (h(k) + i*i) % M.
+ * Answer key: closed hashing with quadratic probing.
  *
- * Compile: gcc -std=c11 -O2 -Wall -Wextra -o P2 P2.c
+ * Compile:
+ *   gcc -std=c11 -O2 -Wall -Wextra -o P2 P2.c
+ * Run:
+ *   Get-Content ..\tests\P2\01.in | .\P2.exe
+ *
+ * Solution functions:
+ *   hash_key         - normalize key % M
+ *   table_contains   - check whether a key is already stored
+ *   insert_quadratic - place a key and count the probes
+ *   print_table      - print every slot
  */
 
 #include <stdio.h>
@@ -11,6 +20,43 @@
 static int hash_key(int key, int m) {
     int h = key % m;
     return h < 0 ? h + m : h;
+}
+
+static int table_contains(const int *table, const unsigned char *used, int m, int key) {
+    for (int i = 0; i < m; i++) {
+        if (used[i] && table[i] == key) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+static int insert_quadratic(int *table, unsigned char *used, int m, int key, int *probes) {
+    int h = hash_key(key, m);
+    *probes = 0;
+
+    for (int step = 0; step < m; step++) {
+        int index = (h + step * step) % m;
+        (*probes)++;
+
+        if (!used[index]) {
+            used[index] = 1;
+            table[index] = key;
+            return index;
+        }
+    }
+
+    return -1;
+}
+
+static void print_table(const int *table, const unsigned char *used, int m) {
+    for (int i = 0; i < m; i++) {
+        if (used[i]) {
+            printf("%d: %d\n", i, table[i]);
+        } else {
+            printf("%d: (empty)\n", i);
+        }
+    }
 }
 
 int main(void) {
@@ -35,44 +81,21 @@ int main(void) {
             break;
         }
 
-        int duplicate = 0;
-        for (int j = 0; j < m; j++) {
-            if (used[j] && table[j] == key) {
-                duplicate = 1;
-                break;
-            }
-        }
-        if (duplicate) {
+        if (table_contains(table, used, m, key)) {
             continue;
         }
 
-        int h = hash_key(key, m);
-        int placed = 0;
+        int probes = 0;
+        int slot = insert_quadratic(table, used, m, key, &probes);
+        total_probes += probes;
 
-        for (int step = 0; step < m; step++) {
-            int idx = (h + step * step) % m;
-            total_probes++;
-            if (!used[idx]) {
-                used[idx] = 1;
-                table[idx] = key;
-                placed = 1;
-                break;
-            }
-        }
-
-        if (!placed) {
+        if (slot < 0) {
             printf("FAILED %d\n", key);
         }
     }
 
     printf("probes: %d\n", total_probes);
-    for (int i = 0; i < m; i++) {
-        if (used[i]) {
-            printf("%d: %d\n", i, table[i]);
-        } else {
-            printf("%d: (empty)\n", i);
-        }
-    }
+    print_table(table, used, m);
 
     free(table);
     free(used);

@@ -1,8 +1,16 @@
 /*
  * P3 - Merge the Streams
- * Merge K sorted lists with a min-heap of list heads.
+ * Answer key: merge K sorted lists with a min-heap of list heads.
  *
- * Compile: gcc -std=c11 -O2 -Wall -Wextra -o P3 P3.c
+ * Compile:
+ *   gcc -std=c11 -O2 -Wall -Wextra -o P3 P3.c
+ * Run:
+ *   Get-Content ..\tests\P3\01.in | .\P3.exe
+ *
+ * Solution functions:
+ *   comes_before - true when a.value is smaller than b.value
+ *   push         - add an Item to the min-heap and bubble it up
+ *   pop          - remove the smallest Item and sift the last Item down
  */
 
 #include <stdio.h>
@@ -19,9 +27,6 @@ typedef struct {
     int length;
 } List;
 
-static Item *heap = NULL;
-static int heap_size = 0;
-
 static int comes_before(Item a, Item b) {
     return a.value < b.value;
 }
@@ -32,8 +37,8 @@ static void swap(Item *a, Item *b) {
     *b = tmp;
 }
 
-static void push(Item item) {
-    int index = heap_size++;
+static void push(Item *heap, int *size, Item item) {
+    int index = (*size)++;
     heap[index] = item;
 
     while (index > 0) {
@@ -46,9 +51,9 @@ static void push(Item item) {
     }
 }
 
-static Item pop(void) {
+static Item pop(Item *heap, int *size) {
     Item top = heap[0];
-    heap[0] = heap[--heap_size];
+    heap[0] = heap[--(*size)];
 
     int index = 0;
     for (;;) {
@@ -56,10 +61,10 @@ static Item pop(void) {
         int right = 2 * index + 2;
         int best = index;
 
-        if (left < heap_size && comes_before(heap[left], heap[best])) {
+        if (left < *size && comes_before(heap[left], heap[best])) {
             best = left;
         }
-        if (right < heap_size && comes_before(heap[right], heap[best])) {
+        if (right < *size && comes_before(heap[right], heap[best])) {
             best = right;
         }
         if (best == index) {
@@ -91,6 +96,7 @@ int main(void) {
         if (scanf("%d", &length) != 1 || length < 0) {
             length = 0;
         }
+
         lists[i].length = length;
         lists[i].data = NULL;
 
@@ -107,37 +113,35 @@ int main(void) {
         }
     }
 
-    heap = (Item *)malloc((size_t)(total > 0 ? total : 1) * sizeof(Item));
+    Item *heap = (Item *)malloc((size_t)(total > 0 ? total : 1) * sizeof(Item));
     if (heap == NULL) {
         return 1;
     }
 
+    int heap_size = 0;
+
     for (int i = 0; i < k; i++) {
         if (lists[i].length > 0) {
-            Item item;
-            item.value = lists[i].data[0];
-            item.list = i;
-            item.index = 0;
-            push(item);
+            Item item = {lists[i].data[0], i, 0};
+            push(heap, &heap_size, item);
         }
     }
 
     int first = 1;
+
     while (heap_size > 0) {
-        Item item = pop();
+        Item item = pop(heap, &heap_size);
+
         if (!first) {
             putchar(' ');
         }
         printf("%d", item.value);
         first = 0;
 
-        int next_index = item.index + 1;
-        if (next_index < lists[item.list].length) {
-            Item next;
-            next.value = lists[item.list].data[next_index];
-            next.list = item.list;
-            next.index = next_index;
-            push(next);
+        int next = item.index + 1;
+        if (next < lists[item.list].length) {
+            Item next_item = {lists[item.list].data[next], item.list, next};
+            push(heap, &heap_size, next_item);
         }
     }
     putchar('\n');
@@ -147,6 +151,5 @@ int main(void) {
     }
     free(lists);
     free(heap);
-
     return 0;
 }

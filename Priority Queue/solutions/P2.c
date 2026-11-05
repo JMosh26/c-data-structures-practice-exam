@@ -1,9 +1,16 @@
 /*
  * P2 - ER Triage
- * A max-heap of patients. Higher severity wins; on a tie, the earlier
- * arrival wins.
+ * Answer key: a max-heap of patients with a severity/arrival comparator.
  *
- * Compile: gcc -std=c11 -O2 -Wall -Wextra -o P2 P2.c
+ * Compile:
+ *   gcc -std=c11 -O2 -Wall -Wextra -o P2 P2.c
+ * Run:
+ *   Get-Content ..\tests\P2\01.in | .\P2.exe
+ *
+ * Solution functions:
+ *   higher_priority - true when a should be treated before b
+ *   push            - add a patient and bubble up
+ *   pop             - remove the highest-priority patient and sift down
  */
 
 #include <stdio.h>
@@ -16,10 +23,6 @@ typedef struct {
     int severity;
     int arrival;
 } Patient;
-
-static Patient heap[MAX_PATIENTS];
-static int heap_size = 0;
-static int next_arrival = 0;
 
 static int higher_priority(const Patient *a, const Patient *b) {
     if (a->severity != b->severity) {
@@ -34,8 +37,8 @@ static void swap(Patient *a, Patient *b) {
     *b = tmp;
 }
 
-static void push(Patient patient) {
-    int index = heap_size++;
+static void push(Patient *heap, int *size, Patient patient) {
+    int index = (*size)++;
     heap[index] = patient;
 
     while (index > 0) {
@@ -48,9 +51,9 @@ static void push(Patient patient) {
     }
 }
 
-static Patient pop(void) {
+static Patient pop(Patient *heap, int *size) {
     Patient top = heap[0];
-    heap[0] = heap[--heap_size];
+    heap[0] = heap[--(*size)];
 
     int index = 0;
     for (;;) {
@@ -58,10 +61,10 @@ static Patient pop(void) {
         int right = 2 * index + 2;
         int best = index;
 
-        if (left < heap_size && higher_priority(&heap[left], &heap[best])) {
+        if (left < *size && higher_priority(&heap[left], &heap[best])) {
             best = left;
         }
-        if (right < heap_size && higher_priority(&heap[right], &heap[best])) {
+        if (right < *size && higher_priority(&heap[right], &heap[best])) {
             best = right;
         }
         if (best == index) {
@@ -76,6 +79,10 @@ static Patient pop(void) {
 }
 
 int main(void) {
+    Patient heap[MAX_PATIENTS];
+    int size = 0;
+    int next_arrival = 0;
+
     int q;
     if (scanf("%d", &q) != 1) {
         return 0;
@@ -92,22 +99,22 @@ int main(void) {
             Patient patient;
             scanf("%31s %d", patient.name, &patient.severity);
             patient.arrival = next_arrival++;
-            push(patient);
+            push(heap, &size, patient);
         } else if (strcmp(command, "TREAT") == 0) {
-            if (heap_size == 0) {
+            if (size == 0) {
                 printf("NO PATIENTS\n");
             } else {
-                Patient patient = pop();
+                Patient patient = pop(heap, &size);
                 printf("TREATING %s %d\n", patient.name, patient.severity);
             }
         } else if (strcmp(command, "NEXT") == 0) {
-            if (heap_size == 0) {
+            if (size == 0) {
                 printf("NO PATIENTS\n");
             } else {
                 printf("%s %d\n", heap[0].name, heap[0].severity);
             }
         } else if (strcmp(command, "COUNT") == 0) {
-            printf("%d\n", heap_size);
+            printf("%d\n", size);
         }
     }
 
