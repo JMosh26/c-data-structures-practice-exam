@@ -1,0 +1,30 @@
+# Build artifacts
+*.exe
+*.o
+*.obj
+*.dll
+*.lib
+*.a
+*.pdb
+*.ilk
+*.exp
+
+# Compiler and editor temp files
+*.tmp
+*.log
+*.suo
+*.user
+*.VC.db
+*.VC.opendb
+.vs/
+.vscode/
+.idea/
+
+# OS metadata
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# Local scratch space
+tmp/
+temp/
